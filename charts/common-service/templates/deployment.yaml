@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: events-service
+  template:
+    metadata:
+      labels:
+        app: events-service
+    spec:
+      containers:
+        - name: events-service          
+          image: mxsandmann/eventsservice
+          envFrom:
+          - configMapRef:
+              name: zerotask-asp-net-services-config
+          - configMapRef:
+              name: zerotask-events-config          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: events-clusterip-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: events-service
+  ports:
+  - name: events-service
+    protocol: TCP
+    port: 5020
+    targetPort: 5020
